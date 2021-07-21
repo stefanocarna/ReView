@@ -1,16 +1,16 @@
 <template>
   <div class="multichart__container">
     <div v-for="d in datasets" :key="d.id">
-      <s-chart :name="d.id" :data="cData[d.id]" :zoom="zoom" :range="range" />
+      <chart :name="d.id" :data="cData[d.id]" :zoom="zoom" :range="range" />
     </div>
   </div>
 </template>
 <script>
-import SChart from '@/components/SChart.vue'
+import Chart from '~/components/Chart.vue'
 
 export default {
   components: {
-    SChart,
+    Chart,
   },
 
   props: {

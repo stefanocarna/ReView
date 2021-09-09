@@ -4,15 +4,6 @@
     <div class="chart__wrapper">
       <canvas ref="chart" width="100" height="100" />
     </div>
-    <!-- <div class="block">
-      <b-checkbox
-        v-for="l in cLabels"
-        :key="l"
-        v-model="showLabels"
-        :native-value="l"
-        >{{ l }}</b-checkbox
-      >
-    </div> -->
   </div>
 </template>
 
@@ -58,43 +49,63 @@ export default {
 
   data() {
     return {
-      showLabels: [],
       chart: null,
     }
   },
 
   computed: {
-    cLabels() {
-      const labels = []
-      for (const e of this.data.data) {
-        labels.push(e.label)
-      }
+    cHighlights() {
+      return this.data.highlights.data
+    },
 
-      return labels
+    cData() {
+      return this.data.data
+    },
+
+    cAreas() {
+      return {
+        id: 'areas',
+        beforeDraw: (chart, args, options) => {
+          const { ctx, chartArea } = chart
+          const TOP = chartArea.top
+          const AREA = chartArea.bottom - chartArea.top
+          const meta = chart.getDatasetMeta(0)
+          ctx.save()
+          ctx.fillStyle = 'lightGreen'
+          for (let i = 0; i < this.cHighlights.length - 1; i += 2) {
+            const e1 = this.cHighlights[i]
+            const e2 = this.cHighlights[i + 1]
+            const start = meta.data[e1].x
+            const stop = meta.data[e2].x
+            ctx.fillRect(start, TOP, stop - start, AREA)
+          }
+          ctx.restore()
+        },
+      }
     },
   },
 
   watch: {
-    showLabels(n, o) {
+    data() {
       this.updateChart()
     },
 
     zoom(n, o) {
-      console.log('change zoom')
       this.updateWidth()
       this.updateTicks()
       this.chart.update()
+      // this.updateChart()
     },
   },
 
   mounted() {
     this.createChart()
-    this.updateChart()
   },
 
   methods: {
     updateWidth() {
-      this.chart.canvas.parentNode.style.width = 100 + this.zoom * 10 + '%'
+      this.chart.canvas.parentNode.style.width =
+        100 + (this.zoom - 1) * 10 + '%'
     },
 
     updateTicks() {
@@ -109,9 +120,8 @@ export default {
 
       const newData = []
 
-      for (let i = 0; i < this.data.data.length; ++i) {
-        // if (this.showLabels.includes(this.data.data[i].label))
-        newData.push(this.data.data[i])
+      for (let i = 0; i < this.cData.data.length; ++i) {
+        newData.push(this.cData.data[i])
       }
 
       this.chart.options.scales.x.min = this.range[0]
@@ -129,22 +139,24 @@ export default {
     },
 
     createChart() {
+      const newData = []
+
+      for (let i = 0; i < this.cData.data.length; ++i) {
+        newData.push(this.cData.data[i])
+      }
+
+      let i = 0
+      newData.forEach((dataset) => {
+        dataset.borderColor = COLORS[i++]
+        dataset.backgroundColor = dataset.borderColor
+      })
+
       this.chart = new Chart(this.$refs.chart.getContext('2d'), {
         type: 'scatter',
         data: {
-          datasets: [],
+          datasets: newData,
         },
         options: {
-          plugins: {
-            legend: {
-              labels: {
-                color: '#fbd14b',
-                font: {
-                  size: 12,
-                },
-              },
-            },
-          },
           scales: {
             y: {
               beginAtZero: true,
@@ -157,10 +169,13 @@ export default {
                 color: '#fbd14b',
                 count: 10,
               },
-              min: 0,
-              max: 1,
+              // TODO change to 0 when fixing data parsing
+              min: -1,
+              max: 1001,
             },
             x: {
+              suggestedMin: this.range[0],
+              suggestedMax: this.range[1],
               grid: {
                 color: gridColor,
                 borderColor: '#fbd14b',
@@ -176,13 +191,27 @@ export default {
           tension: 0.5,
           fill: false,
           showLine: true,
+
+          plugins: {
+            legend: {
+              labels: {
+                color: '#fbd14b',
+                font: {
+                  size: 12,
+                },
+              },
+            },
+            areas: {},
+          },
         },
+        plugins: [this.cAreas],
       })
 
-      this.chart.onResize = () => {
-        console.log('Hello!')
-      }
+      // this.chart.onResize = () => {
+      //   console.log('Hello!')
+      // }
 
+      this.updateTicks()
       this.chart.canvas.parentNode.style.width = '100%'
     },
   },
@@ -199,6 +228,7 @@ export default {
 
   &__wrapper {
     min-width: 100%;
+    width: 100%;
     min-height: 16em;
     max-height: 16em;
   }

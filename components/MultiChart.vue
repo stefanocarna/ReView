@@ -33,7 +33,7 @@ export default {
       const chartsData = {}
 
       for (const d of this.datasets) {
-        chartsData[d.id] = d.data
+        chartsData[d.id] = { data: d.data, highlights: d.highlights }
       }
 
       return chartsData

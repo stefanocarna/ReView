@@ -76,6 +76,20 @@ class DataAnalyzer {
     }
   }
 
+  getDataByRawMetric(m) {
+    const data = []
+
+    const metricIndex = this.rawData.columns.indexOf(m)
+
+    if (metricIndex >= 0) {
+      for (const e of this.rawData.data) {
+        data.push(e[metricIndex])
+      }
+    }
+
+    return data
+  }
+
   getAvailableMetrics() {
     if (!this.processed) this.preProcess()
     return this.availableMetrics
@@ -87,53 +101,77 @@ class DataAnalyzer {
   }
 }
 
-const PIPELINE_WIDTH = 4
+// const PIPELINE_WIDTH = 4
 
-Metric.build('pipeline_w', [], [], (data, eP) => PIPELINE_WIDTH)
-
-Metric.build('time', ['TIME'], [], function (data, eP) {
+Metric.build('time', ['TSC'], [], function (data, eP) {
   return data[eP[this.evts[0]]]
 })
 
-Metric.build('slots', ['CYCLES'], ['pipeline_w'], function (data, eP) {
-  return this.mtss[0].eval(data, eP) * data[eP[this.evts[0]]]
-})
+const MASK_HEADER_FULL = [
+  'BB',
+  'BS',
+  'RE',
+  'FB',
+  'MB',
+  'CB',
+  'L1B',
+  'L2B',
+  'L3B',
+  'DRAMB',
+]
 
-Metric.build('retire', ['2c2'], ['slots'], function (data, eP) {
-  return data[eP[this.evts[0]]] / (this.mtss[0].eval(data, eP) + 1)
-})
+for (const i of MASK_HEADER_FULL) {
+  Metric.build(i, [i], [], function (data, eP) {
+    return data[eP[this.evts[0]]]
+  })
+}
 
-Metric.build('frontend', ['19c'], ['slots'], function (data, eP) {
-  return data[eP[this.evts[0]]] / (this.mtss[0].eval(data, eP) + 1)
-})
+/* TODO - Restore for raw events and TMA in-place computation */
+// Metric.build('pipeline_w', [], [], (data, eP) => PIPELINE_WIDTH)
 
-Metric.build(
-  'bad_spec',
-  ['10e', '2c2', '10d'],
-  ['pipeline_w', 'slots'],
-  function (data, eP) {
-    return (
-      (data[eP[this.evts[0]]] -
-        data[eP[this.evts[1]]] +
-        this.mtss[0].eval(data, eP) * data[eP[this.evts[2]]]) /
-      (this.mtss[1].eval(data, eP) + 1)
-    )
-  }
-)
+// Metric.build('time', ['TIME'], [], function (data, eP) {
+//   return data[eP[this.evts[0]]]
+// })
 
-Metric.build(
-  'backend',
-  [],
-  ['bad_spec', 'frontend', 'retire'],
-  function (data, eP) {
-    return (
-      1 -
-      this.mtss[0].eval(data, eP) -
-      this.mtss[1].eval(data, eP) -
-      this.mtss[2].eval(data, eP)
-    )
-  }
-)
+// Metric.build('slots', ['CYCLES'], ['pipeline_w'], function (data, eP) {
+//   return this.mtss[0].eval(data, eP) * data[eP[this.evts[0]]]
+// })
+
+// Metric.build('retire', ['2c2'], ['slots'], function (data, eP) {
+//   return data[eP[this.evts[0]]] / (this.mtss[0].eval(data, eP) + 1)
+// })
+
+// Metric.build('frontend', ['19c'], ['slots'], function (data, eP) {
+//   return data[eP[this.evts[0]]] / (this.mtss[0].eval(data, eP) + 1)
+// })
+
+// Metric.build(
+//   'bad_spec',
+//   ['10e', '2c2', '10d'],
+//   ['pipeline_w', 'slots'],
+//   function (data, eP) {
+//     return (
+//       (data[eP[this.evts[0]]] -
+//         data[eP[this.evts[1]]] +
+//         this.mtss[0].eval(data, eP) * data[eP[this.evts[2]]]) /
+//       (this.mtss[1].eval(data, eP) + 1)
+//     )
+//   }
+// )
+
+// Metric.build(
+//   'backend',
+//   [],
+//   ['bad_spec', 'frontend', 'retire'],
+//   function (data, eP) {
+//     return (
+//       1 -
+//       this.mtss[0].eval(data, eP) -
+//       this.mtss[1].eval(data, eP) -
+//       this.mtss[2].eval(data, eP)
+//     )
+//   }
+// )
 
 export default DataAnalyzer
 export { Metric, DataAnalyzer }

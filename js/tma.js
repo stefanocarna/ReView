@@ -107,6 +107,10 @@ Metric.build('time', ['TSC'], [], function (data, eP) {
   return data[eP[this.evts[0]]]
 })
 
+Metric.build('tracked', ['TRACKED'], [], function (data, eP) {
+  return data[eP[this.evts[0]]]
+})
+
 const MASK_HEADER_FULL = [
   'BB',
   'BS',

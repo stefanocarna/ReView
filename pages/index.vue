@@ -1,46 +1,69 @@
 <template>
   <div class="columns is-multiline p-3 m-0">
-    <div class="column is-5">
-      <p class="is-size-4 has-text-light has-text-centered m-2">
-        Select a data file
-      </p>
+    <div class="column is-6">
+      <p class="is-size-4 has-text-centered m-2">Select a data file</p>
       <uploader :value.sync="dataJson" />
     </div>
-    <div class="column is-2"></div>
-    <div class="column is-5">
-      <p class="is-size-4 has-text-light has-text-centered m-2">
-        Zoom level:
-        <span class="has-text-primary">{{ zoom }} % </span>
-      </p>
-      <b-field>
-        <b-button class="mr-3" @click="zoom = zoom - 10 < 0 ? 1 : zoom - 10"
-          >-</b-button
-        >
-        <b-slider
-          :min="1"
-          :max="50"
-          ticks
-          v-model.lazy="zoom"
-          size="is-medium"
-        ></b-slider>
-        <b-button class="ml-3" @click="zoom = zoom + 10 > 50 ? 50 : zoom + 10"
-          >+</b-button
-        >
-      </b-field>
+    <div
+      class="
+        column
+        is-6
+        has-text-centered
+        is-flex is-flex-direction-column is-align-content-center
+      "
+    >
+      <p class="is-size-4 has-text-centered m-2">Set charts per row</p>
+      <div
+        class="
+          block
+          is-flex is-align-content-center is-justify-content-space-evenly
+        "
+      >
+        <b-field>
+          <b-radio-button
+            v-for="v in perRowChartValues"
+            :key="v"
+            v-model="perRowCharts"
+            :native-value="v"
+          >
+            {{ v }}
+          </b-radio-button>
+        </b-field>
+      </div>
     </div>
-    <div class="column is-12">
-      <div class="block">
-        <b-checkbox
-          v-for="l in cLabels"
-          :key="l"
-          v-model="showLabels"
-          :native-value="l"
-          >{{ l }}</b-checkbox
-        >
+    <div class="column is-12 has-text-centered">
+      <p class="is-size-4 has-text-centered">Filters & Presets</p>
+      <div
+        class="
+          block
+          is-flex is-align-content-center is-justify-content-space-evenly
+        "
+      >
+        <div class="is-flex is-align-content-center">
+          <b-checkbox
+            v-for="l in cLabels"
+            :key="l"
+            v-model="showLabels"
+            :native-value="l"
+            >{{ l }}</b-checkbox
+          >
+        </div>
+        <div>
+          <b-button
+            v-for="p in dPresets"
+            :key="p"
+            @click="setPreset(p.value)"
+            >{{ p.name }}</b-button
+          >
+        </div>
       </div>
     </div>
     <div class="column is-12">
-      <multi-chart :datasets="cDataset" :zoom="zoom" :range="cRange" />
+      <multi-chart
+        :datasets="cDataset"
+        :range="cRange"
+        :perRow="perRowCharts"
+      />
     </div>
   </div>
 </template>
@@ -50,6 +73,55 @@ import MultiChart from '@/components/MultiChart.vue'
 import Uploader from '@/components/Uploader.vue'
 import { Metric, DataAnalyzer } from '@/js/tma.js'
 
+const METADATA = {
+  tracked: {
+    label: 'tracked',
+    color: 'rgba(101, 198, 187, 0.2)',
+    fill: true,
+    pointRadius: 0,
+  },
+  BB: {
+    label: 'BB',
+    color: '#F16B6F',
+  },
+  FB: {
+    label: 'FB',
+    color: '#84B1ED',
+  },
+  RE: {
+    label: 'RE',
+    color: '#3ac569',
+  },
+  BS: {
+    label: 'BS',
+    color: '#FFBC42',
+  },
+  CB: {
+    label: 'CB',
+    color: '#414a85',
+  },
+  MB: {
+    label: 'MB',
+    color: '#c6419c',
+  },
+  L1B: {
+    label: 'L1B',
+    color: '#6d819c',
+  },
+  L2B: {
+    label: 'L2B',
+    color: '#aec448',
+  },
+  L3B: {
+    label: 'L3B',
+    color: '#D499B9',
+  },
+  DRAMB: {
+    label: 'DRAMB',
+    color: '#ffa600',
+  },
+}
+
 export default {
   components: {
     MultiChart,
@@ -58,13 +130,30 @@ export default {
 
   data() {
     return {
-      showLabels: ['BB', 'BS', 'RE', 'FB'],
+      showLabels: ['tracked', 'BB', 'BS', 'RE', 'FB'],
       dataJson: [],
       rawDatasets: [],
-      zoom: 1,
+      // zoom: 1,
       metric: Metric.MTSS,
       skipLabels: ['pipeline_w', 'slots', 'time'],
       dDataset: [],
+
+      dPresets: [
+        {
+          name: 'TMAM_L0',
+          value: ['BB', 'BS', 'RE', 'FB'],
+        },
+        {
+          name: 'TMAM_L1',
+          value: ['CB', 'MB'],
+        },
+        {
+          name: 'TMAM_L2',
+          value: ['L1B', 'L2B', 'L3B', 'DRAMB'],
+        },
+      ],
+      perRowChartValues: [1, 2, 3, 4, 6],
+      perRowCharts: 1,
     }
   },
 
@@ -75,10 +164,11 @@ export default {
         cDataset.push({
           id: e.id,
           data: this.processDataset(e.data),
-          highlights: this.processHighlights(e.data),
         })
       }
 
+      /* TODO remove */
+      // return cDataset.length > 0 ? [cDataset[0]] : []
       return cDataset
     },
 
@@ -96,7 +186,8 @@ export default {
     },
 
     cLabels() {
-      return ['BB', 'BS', 'RE', 'FB', 'MB', 'CB', 'L1B', 'L2B', 'L3B', 'DRAMB']
+      return Object.keys(METADATA)
+      // return METADATA.map((m) => m.label)
     },
   },
 
@@ -113,6 +204,14 @@ export default {
   },
 
   methods: {
+    setPreset(preset) {
+      if (this.showLabels.includes('tracked'))
+        this.showLabels.splice(1, this.showLabels.length)
+      else this.showLabels.splice(0, this.showLabels.length)
+
+      for (const p of preset) this.showLabels.push(p)
+    },
+
     processDataset(d) {
       const data = []
       const datasets = {}
@@ -125,36 +224,27 @@ export default {
       }
 
       for (const e of d.getComputedData()) {
+        /* This should be performed by the the textual parser */
         for (const [k, v] of Object.entries(e)) {
-          datasets[k].data.push({ y: v > 0 ? v : 0, x: e.time })
+          if (k === 'tracked' && v > 0)
+            datasets[k].data.push({ y: 1000, x: e.time })
+          else if (v === -1) datasets[k].data.push({ y: null, x: e.time })
+          else datasets[k].data.push({ y: v > 0 ? v : 0, x: e.time })
         }
       }
 
       for (const k of Object.keys(datasets)) {
         if (this.skipLabels.includes(k)) continue
         if (!this.showLabels.includes(k)) continue
+
+        datasets[k].borderColor = METADATA[k].color
+        datasets[k].backgroundColor = METADATA[k].color
         data.push(datasets[k])
       }
 
-      return { data }
-    },
-
-    processHighlights(d) {
-      const data = []
-
-      const rawData = d.getDataByRawMetric('TRACKED')
-
-      /* Try to collapse subsequent rects */
-      for (let i = 0; i < rawData.length - 1; ++i) {
-        if (rawData[i] === 0) continue
-
-        let offSet = i + 1
-        while (rawData[offSet] && offSet < rawData.length - 1) offSet++
-
-        data.push(i)
-        data.push(offSet)
-        i = offSet
-      }
+      /* Try to implement highlight as dataset */
+      datasets.tracked.fill = true
+      datasets.tracked.pointRadius = 0
 
       return { data }
     },

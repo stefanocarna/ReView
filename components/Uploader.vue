@@ -6,7 +6,7 @@
           <b-icon class="file-icon" icon="upload"></b-icon>
           <span class="file-label">Click to upload</span>
         </span>
-        <span v-if="file" class="file-name has-text-light">
+        <span v-if="file" class="file-name">
           {{ file.name }}
         </span>
       </b-upload>

@@ -1,7 +1,7 @@
 <template>
   <div class="page">
     <section>
-      <div class="container">
+      <div class="container is-fluid">
         <Nuxt />
       </div>
     </section>
@@ -11,7 +11,7 @@
 
 <style lang="scss">
 .page {
-  background: #000;
+  // background: #000;
   min-height: 100vh;
 }
 </style>

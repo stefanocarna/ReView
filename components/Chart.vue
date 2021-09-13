@@ -1,6 +1,6 @@
 <template>
   <div class="chart__container">
-    <p class="is-size-4 has-text-light">{{ name }}</p>
+    <p class="is-size-5">{{ name }}</p>
     <div class="chart__wrapper">
       <canvas ref="chart" width="100" height="100" />
     </div>
@@ -9,20 +9,10 @@
 
 <script>
 import Chart from 'chart.js/auto'
-
-const COLORS = [
-  '#F16B6F',
-  '#84B1ED',
-  '#3ac569',
-  '#FFBC42',
-  '#1c140d',
-  '#bf209f',
-  '#6d819c',
-  '#f8ca00',
-  '#D499B9',
-]
-
-const gridColor = '#6E7783'
+import { Interaction } from 'chart.js'
+import { CrosshairPlugin, Interpolate } from 'chartjs-plugin-crosshair'
+Chart.register(CrosshairPlugin)
+Interaction.modes.interpolate = Interpolate
 
 export default {
   props: {
@@ -37,10 +27,6 @@ export default {
       type: String,
       default: 'Plot',
     },
-    zoom: {
-      default: 10,
-      type: Number,
-    },
     range: {
       type: Array,
       default: () => [0, 1],
@@ -54,47 +40,18 @@ export default {
   },
 
   computed: {
-    cHighlights() {
-      return this.data.highlights.data
-    },
-
     cData() {
       return this.data.data
-    },
-
-    cAreas() {
-      return {
-        id: 'areas',
-        beforeDraw: (chart, args, options) => {
-          const { ctx, chartArea } = chart
-          const TOP = chartArea.top
-          const AREA = chartArea.bottom - chartArea.top
-          const meta = chart.getDatasetMeta(0)
-          ctx.save()
-          ctx.fillStyle = 'lightGreen'
-          for (let i = 0; i < this.cHighlights.length - 1; i += 2) {
-            const e1 = this.cHighlights[i]
-            const e2 = this.cHighlights[i + 1]
-            const start = meta.data[e1].x
-            const stop = meta.data[e2].x
-            ctx.fillRect(start, TOP, stop - start, AREA)
-          }
-          ctx.restore()
-        },
-      }
     },
   },
 
   watch: {
     data() {
-      this.updateChart()
-    },
+      /* Workaround: Need to reset the zoom  */
+      const zoomButtons = document.getElementsByClassName('chart-reset-zoom')
+      if (zoomButtons.length) zoomButtons[0].click()
 
-    zoom(n, o) {
-      this.updateWidth()
-      this.updateTicks()
-      this.chart.update()
-      // this.updateChart()
+      this.updateChart()
     },
   },
 
@@ -103,53 +60,25 @@ export default {
   },
 
   methods: {
-    updateWidth() {
-      this.chart.canvas.parentNode.style.width =
-        100 + (this.zoom - 1) * 10 + '%'
-    },
-
-    updateTicks() {
-      this.chart.options.scales.x.ticks.stepSize = 30 * this.zoom * 0.5
-
-      if (this.chart.options.scales.x.ticks.stepSize < 30)
-        this.chart.options.scales.x.ticks.count = 30
-    },
-
-    updateChart() {
-      this.updateTicks()
-
+    generateChartData() {
       const newData = []
-
       for (let i = 0; i < this.cData.data.length; ++i) {
         newData.push(this.cData.data[i])
       }
+      return newData
+    },
+
+    updateChart() {
+      const newData = this.generateChartData()
 
       this.chart.options.scales.x.min = this.range[0]
       this.chart.options.scales.x.max = this.range[1]
-
       this.chart.data.datasets = newData
-
-      let i = 0
-      this.chart.data.datasets.forEach((dataset) => {
-        dataset.borderColor = COLORS[i++]
-        dataset.backgroundColor = dataset.borderColor
-      })
-
       this.chart.update()
     },
 
     createChart() {
-      const newData = []
-
-      for (let i = 0; i < this.cData.data.length; ++i) {
-        newData.push(this.cData.data[i])
-      }
-
-      let i = 0
-      newData.forEach((dataset) => {
-        dataset.borderColor = COLORS[i++]
-        dataset.backgroundColor = dataset.borderColor
-      })
+      const newData = this.generateChartData()
 
       this.chart = new Chart(this.$refs.chart.getContext('2d'), {
         type: 'scatter',
@@ -161,27 +90,27 @@ export default {
             y: {
               beginAtZero: true,
               grid: {
-                color: gridColor,
-                borderColor: '#fbd14b',
-                tickColor: '#fbd14b',
+                // color: gridColor,
+                // borderColor: '#fbd14b',
+                // tickColor: '#fbd14b',
               },
               ticks: {
-                color: '#fbd14b',
+                // color: '#fbd14b',
                 count: 10,
+                stepSize: 100,
               },
-              // TODO change to 0 when fixing data parsing
-              min: -1,
-              max: 1001,
+              min: 0,
+              max: 1000,
             },
             x: {
               suggestedMin: this.range[0],
               suggestedMax: this.range[1],
               grid: {
-                color: gridColor,
-                borderColor: '#fbd14b',
+                // color: gridColor,
+                // borderColor: '#fbd14b',
               },
               ticks: {
-                color: '#fbd14b',
+                // color: '#fbd14b',
               },
             },
           },
@@ -191,27 +120,54 @@ export default {
           tension: 0.5,
           fill: false,
           showLine: true,
+          spanGaps: true,
+          esponsiveAnimationDuration: 0,
 
           plugins: {
             legend: {
               labels: {
-                color: '#fbd14b',
+                // color: '#fbd14b',
                 font: {
                   size: 12,
                 },
               },
             },
             areas: {},
+            // tooltip: {
+            //   mode: 'interpolate',
+            //   intersect: false,
+            // },
+            crosshair: {
+              sync: {
+                enabled: true,
+                suppressTooltips: false,
+                group: 1,
+              },
+              zoom: {
+                zoomButtonClass: 'chart-reset-zoom',
+              },
+              pan: {
+                incrementer: 3, // Defaults to 5 if not included.
+              },
+            },
           },
         },
-        plugins: [this.cAreas],
       })
 
-      // this.chart.onResize = () => {
-      //   console.log('Hello!')
-      // }
+      const panZoom = (e) => {
+        const min = this.chart.options.scales.x.min
+        const max = this.chart.options.scales.x.max
 
-      this.updateTicks()
+        const val = (max - min) / 10
+
+        if (e.keyCode === 37) {
+          this.chart.panZoom(-val)
+        } else if (e.keyCode === 39) {
+          this.chart.panZoom(val)
+        }
+      }
+
+      window.addEventListener('keydown', panZoom)
       this.chart.canvas.parentNode.style.width = '100%'
     },
   },
@@ -227,10 +183,14 @@ export default {
   }
 
   &__wrapper {
-    min-width: 100%;
-    width: 100%;
+    // min-width: 100%;
+    // width: 100%;
     min-height: 16em;
     max-height: 16em;
+
+    width: 50%;
+    float: left;
+    position: relative;
   }
 }
 </style>

@@ -51,7 +51,7 @@
         <div>
           <b-button
             v-for="p in dPresets"
-            :key="p"
+            :key="p.name"
             @click="setPreset(p.value)"
             >{{ p.name }}</b-button
           >

@@ -7,7 +7,7 @@ const backend = {
 
 if (process.env.NODE_ENV === 'production') {
   backend.baseUrl = 'https://app-review-backend.herokuapp.com/'
-  backend.api = backend.baseUrl + '/api/'
+  backend.apiUrl = backend.baseUrl + 'api/'
 }
 
 /*******************************************************/
@@ -26,6 +26,9 @@ backend.call = function (request, auth, unpack, axios = this.axios) {
       request.headers.Authorization = 'bearer ' + this.auth.accessToken
     else request.headers = { Authorization: 'bearer ' + this.auth.accessToken }
   }
+
+  // Add here the apiUrl, this may change with mutiple endpoints
+  request.url = this.apiUrl + request.url
   return axios(request).then((response) => (unpack ? response.data : response))
 }
 
@@ -36,11 +39,7 @@ backend.call = function (request, auth, unpack, axios = this.axios) {
 backend.deleteAPI = function (api, params, auth = true, unpack = true) {
   if (!api) Error('backend.js:deleteAPI invalid params:', api)
   console.log('backend.js:deleteAPI api:', api)
-  return this.call(
-    { method: 'delete', url: this.apiUrl + api, params },
-    auth,
-    unpack
-  )
+  return this.call({ method: 'delete', url: api, params }, auth, unpack)
 }
 
 backend.getAPI = function (

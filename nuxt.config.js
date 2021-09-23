@@ -2,6 +2,10 @@ export default {
   // Disable server-side rendering: https://go.nuxtjs.dev/ssr-mode
   ssr: false,
 
+  server: {
+    port: 8000, // default: 3000
+  },
+
   // Target: https://go.nuxtjs.dev/config-target
   target: 'static',
 
@@ -24,7 +28,7 @@ export default {
   css: [],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
-  plugins: [],
+  plugins: ['@plugins/axios.js', '@plugins/backend.js'],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
   components: true,
@@ -71,7 +75,14 @@ export default {
   ],
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
-  axios: {},
+  axios: {
+    proxy: true,
+  },
+
+  proxy: {
+    // '/api/': 'http://127.0.0.1:8001/',
+    '/api/': 'https://app-review-backend.herokuapp.com/',
+  },
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {},

@@ -85,20 +85,28 @@ backend.putAPI = function (api, data, auth = true, unpack = true) {
 // /*                   Authorization                     */
 // /* ----------------------------------------------------- */
 
+backend.authRegister = function (name, username, password) {
+  console.log('backend.js:authRegister')
+  const END_API = 'auth/register'
+  return this.postAPI(END_API, null, { name, username, password }, false)
+}
+
 backend.authLogin = function (username, password) {
   console.log('backend.js:authLogin')
   const END_API = 'auth/login'
-  // TODO create a preliminary section to define global variables
-  // data.isEmployee = true
   return this.postAPI(END_API, null, { username, password }, false)
 }
 
 backend.authLogout = function () {
   console.log('backend.js:authLogout')
   const END_API = 'auth/logout'
-  // TODO create a preliminary section to define global variables
-  // data.isEmployee = true
   return this.postAPI(END_API, null)
+}
+
+backend.getAuth = function () {
+  console.log('backend.js:getAuth')
+  const END_API = 'auth/'
+  return this.getAPI(END_API, null)
 }
 
 backend.getProfile = function () {

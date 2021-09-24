@@ -2,9 +2,13 @@
   <b-navbar>
     <template #brand>
       <b-navbar-item tag="router-link" :to="{ path: '/' }">
-        <img src="@/assets/images/review-logo.png" />
+        <img src="@/assets/images/png/review-logo.png" />
         <p class="logo-text is-size-4">ReView</p>
       </b-navbar-item>
+    </template>
+
+    <template #start>
+      <b-navbar-item v-show="gIsLogged" href="#"> Logged </b-navbar-item>
     </template>
 
     <template #end>
@@ -23,6 +27,17 @@
     </template>
   </b-navbar>
 </template>
+<script>
+import { mapGetters } from 'vuex'
+
+export default {
+  computed: {
+    ...mapGetters({
+      gIsLogged: 'auth/gIsLogged',
+    }),
+  },
+}
+</script>
 <style lang="scss" scoped>
 .navbar {
   padding: 0 1.5rem;

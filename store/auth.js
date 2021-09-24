@@ -11,10 +11,11 @@
 //     return refPromise
 //   }
 // }
+import storage from '@/js/storage.js'
 
 export const state = () => ({
-  user: null,
-  accessToken: null,
+  user: storage.get('authUser'),
+  accessToken: storage.get('authAccessToken'),
 })
 
 export const getters = {
@@ -27,9 +28,9 @@ export const getters = {
   },
 
   gAccessToken(state) {
-    // if (!state.accessToken) {
-    //   state.accessToken = storage.get('authAccessToken')
-    // }
+    if (!state.accessToken) {
+      state.accessToken = storage.get('authAccessToken')
+    }
     return state.accessToken
   },
 }
@@ -48,17 +49,17 @@ export const mutations = {
     }
 
     state.user = cUser
-    // if (persist) storage.put('authUser', cUser)
+    if (persist) storage.put('authUser', cUser)
   },
 
   SET_ACCESS_TOKEN(state, { token, persist }) {
     state.accessToken = token
-    // if (persist) storage.put('authAccessToken', token)
+    if (persist) storage.put('authAccessToken', token)
   },
 
   CLEAR_STATE(state) {
     // Clear localStorage
-    // storage.clear()
+    storage.clear()
 
     // Reset State
     state.accessToken = null
@@ -67,12 +68,12 @@ export const mutations = {
 }
 
 export const actions = {
-  //   clear_app_state({ commit }) {
-  //     commit('CLEAR_STATE')
-  //     // Clear user state
-  //     commit('freebles/SET_FREEBLES', [], { root: true })
-  //     commit('payments/SET_PAYMENTS', [], { root: true })
-  //   },
+  clear_app_state({ commit }) {
+    commit('CLEAR_STATE')
+    // Clear user state
+    commit('freebles/SET_FREEBLES', [], { root: true })
+    commit('payments/SET_PAYMENTS', [], { root: true })
+  },
 
   //   logout({ getters, commit, dispatch }) {
   //     if (getters.gUser) {
@@ -104,9 +105,10 @@ export const actions = {
         // Save accessToken
         commit('SET_ACCESS_TOKEN', {
           token: r.token,
+          persist: true,
         })
 
-        commit('SET_USER', { user: r.user })
+        commit('SET_USER', { user: r.user }, true)
 
         return true
       })
@@ -118,11 +120,21 @@ export const actions = {
       })
   },
 
-  logout({ commit }) {
+  logout({ dispatch }) {
     // console.log('[INIT] auth.js:login')
+    dispatch('clear_app_state')
+  },
 
-    commit('CLEAR_STATE')
-    return true
+  async fetchFullUser({ commit, state }) {
+    try {
+      commit('SET_USER', {
+        user: await this.$backend.getAuth(),
+        persist: !!storage.get('authUser'),
+      })
+      return state.user
+    } catch {
+      throw new Error('Cannot fetch user information')
+    }
   },
 
   //   fetchFullUser({ dispatch }) {

@@ -1,0 +1,118 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+
+  &__head {
+    border: 1px solid #000;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    padding: 1em 0.5em;
+    margin-bottom: 2em;
+
+    > img {
+      width: 4em;
+      height: auto;
+    }
+    > span {
+      text-transform: uppercase;
+      text-align: center;
+    }
+  }
+
+  &__panel {
+    display: flex;
+    justify-content: center;
+    flex-grow: 1;
+  }
+
+  &__container {
+    max-width: 60em;
+  }
+
+  &__text {
+    display: block;
+    margin-bottom: 0.5em;
+    text-align: justify;
+
+    @include mobile {
+      text-align: center;
+    }
+
+    .text-tab {
+      display: block;
+      margin-top: 0.5em;
+      margin-left: 1em;
+    }
+  }
+
+  .text {
+    margin-bottom: 2em;
+    @include tablet {
+      text-align: justify;
+    }
+  }
+
+  .title {
+    text-align: center;
+    font-size: $size-3;
+  }
+  .subtitle {
+    font-size: $size-4;
+  }
+  .title,
+  .subtitle {
+    display: block;
+    margin: 1em 0;
+    color: $primary;
+  }
+}
+
+.faqs {
+  &__page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  &__panel {
+    flex-grow: 1;
+  }
+
+  &__container {
+    max-width: 60em;
+  }
+}
+
+.faq {
+  margin-bottom: 2em;
+
+  &__header {
+    > .card-header-icon {
+      color: $white;
+    }
+    > .card-header-title {
+      color: $white;
+    }
+  }
+
+  &__question {
+    background-color: $primary;
+    color: $white;
+    display: block;
+    border-radius: 1em;
+    font-family: $family-secondary;
+    font-size: $size-5;
+    margin-bottom: 0.5em;
+    @include touch {
+      font-size: $size-4;
+    }
+  }
+
+  &__answer {
+    display: block;
+    font-size: $size-7;
+    text-align: justify;
+  }
+}

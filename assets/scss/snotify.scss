@@ -1,0 +1,43 @@
+/*****************************************/
+/*    Import vue-snotify simple style    */
+/*****************************************/
+@import '~vue-snotify/styles/simple';
+
+.snotifyToast {
+  border-radius: 0.5rem;
+  box-shadow: 0 8px 17px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19) !important;
+}
+
+.snotify-simple {
+  border: 1px solid $snotify-simple-border-color;
+  border-left: $snotify-border-width solid $snotify-simple-border-color;
+}
+.snotify-success {
+  border: 1px solid $snotify-success-border-color;
+  border-left: $snotify-border-width solid $snotify-success-border-color;
+}
+
+.snotify-info {
+  border: 1px solid $snotify-info-border-color;
+  border-left: $snotify-border-width solid $snotify-info-border-color;
+}
+
+.snotify-warning {
+  border-left: $snotify-border-width solid $snotify-warning-border-color;
+}
+
+.snotify-error {
+  border-left: $snotify-border-width solid $snotify-error-border-color;
+}
+
+.snotify-async {
+  border-left: $snotify-border-width solid $snotify-async-border-color;
+}
+
+.snotify-confirm {
+  border-left: $snotify-border-width solid $snotify-confirm-border-color;
+}
+
+.snotify-prompt {
+  border-left: $snotify-border-width solid $snotify-prompt-border-color;
+}

@@ -24,11 +24,17 @@ export default {
     link: [{ rel: 'icon', type: 'image/png', href: '/favicon.png' }],
   },
 
-  // Global CSS: https://go.nuxtjs.dev/config-css
-  css: [],
+  /*
+   ** Global CSS
+   */
+  css: [{ src: '@assets/scss/base.scss', lang: 'scss' }],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
-  plugins: ['@plugins/axios.js', '@plugins/backend.js'],
+  plugins: [
+    '@plugins/axios.js',
+    '@plugins/backend.js',
+    '@plugins/dependencies.js',
+  ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
   components: true,
@@ -68,6 +74,26 @@ export default {
 
   // Modules: https://go.nuxtjs.dev/config-modules
   modules: [
+    [
+      'nuxt-i18n',
+      {
+        defaultLocale: 'en',
+        locales: [
+          {
+            code: 'en',
+            file: 'en-US.js',
+          },
+          {
+            code: 'it',
+            iso: 'it_IT',
+            file: 'it-IT.js',
+          },
+        ],
+        strategy: 'prefix_and_default',
+        lazy: true,
+        langDir: 'lang/',
+      },
+    ],
     // https://go.nuxtjs.dev/buefy
     'nuxt-buefy',
     // https://go.nuxtjs.dev/axios
@@ -80,8 +106,7 @@ export default {
   },
 
   proxy: {
-    // '/api/': 'http://127.0.0.1:8001/',
-    '/api/': 'https://app-review-backend.herokuapp.com/',
+    '/api/': 'http://127.0.0.1:8001/',
   },
 
   // Build Configuration: https://go.nuxtjs.dev/config-build

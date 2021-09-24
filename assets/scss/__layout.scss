@@ -1,0 +1,48 @@
+// @import '__bulma.scss';
+
+html {
+  overflow: auto !important;
+  // height: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  max-height: 100vh;
+}
+
+.hero {
+  overflow-x: hidden;
+  &.is-header {
+    background-color: #fad49b;
+  }
+}
+.title,
+.subtitle {
+  font-weight: 400;
+}
+
+.loading-overlay {
+  z-index: 35 !important;
+}
+
+a {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  -ms-word-break: break-all;
+  /* Instead use this non-standard one: */
+  word-break: break-word;
+  /* Adds a hyphen where the word breaks, if supported (No Blink) */
+  -ms-hyphens: auto;
+  -moz-hyphens: auto;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+
+  &.inverse {
+    // color: $link-inverse;
+
+    &:hover {
+      // color: $link-hover-inverse;
+    }
+  }
+}

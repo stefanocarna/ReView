@@ -14,6 +14,8 @@
 import NavBar from '@/components/layout/Navbar.vue'
 
 export default {
+  middleware: ['init-app'],
+
   components: {
     NavBar,
   },

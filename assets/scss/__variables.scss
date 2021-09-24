@@ -1,0 +1,42 @@
+// Bulma variables
+$navbar-padding-horizontal: 100px;
+$family-primary: 'Comfortaa';
+$family-secondary: 'Comfortaa';
+$family-landing: 'Cabin';
+
+$primary-gradient-light: #95d2de;
+$secondary: #005666;
+$info: #0080ff;
+$dark: #566270;
+
+$footer-padding: 1rem 1.5rem;
+$footer-background-color: $dark;
+
+// App defined variables
+$app-color-freeble: #0093af;
+
+$app-color1: #004e66;
+$app-color2: #e1eef6;
+$app-color3: #fcbe32;
+$app-color4: #ff5f2e;
+
+$app-danger: #ea4335;
+
+$app-warning-lighter: lighten($app-color3, 50%);
+$app-warning-light: lighten($app-color3, 10%);
+$app-warning: $app-color3;
+
+$app-grey-dark: #4f4f4f;
+$app-grey: #777777;
+$app-grey-light: #999999;
+$app-grey-very-light: #d3d3d3;
+$app-color-page: #faf9f9;
+
+$app-color-page-bg: #faf9f9;
+$app-color-header: #fad49b;
+
+$size-7: 0.875em;
+$size-8: 0.75em;
+
+// Bulma variables
+$primary: $app-color-freeble;

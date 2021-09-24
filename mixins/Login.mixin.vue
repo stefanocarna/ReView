@@ -53,7 +53,7 @@ export default {
           .then(() => {
             /* Login with success */
             // TODO change into index
-            this.$router.push(this.localePath({ name: '/' }))
+            this.$router.push(this.localePath({ name: '/realtime' }))
           })
           .catch((err) => {
             /* Terms required */

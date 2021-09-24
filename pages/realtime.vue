@@ -1,7 +1,12 @@
 <template>
   <div class="columns is-multiline p-3 m-0">
     <div class="column is-6">
-      <b-button @click="openWebSocket"> Enable Realtime</b-button>
+      <b-button v-if="!gIsConnected" @click="$store.dispatch('socket/connect')">
+        ENABLE Realtime</b-button
+      >
+      <b-button v-else @click="$store.dispatch('socket/disconnect')">
+        STOP Realtime</b-button
+      >
     </div>
     <div
       class="
@@ -159,14 +164,18 @@ export default {
       gIsLogged: 'auth/gIsLogged',
       gLastProfile: 'data/gLastProfile',
       gAccessToken: 'auth/gAccessToken',
+      gIsConnected: 'socket/gIsConnected',
     }),
 
     cRawDataset() {
       const newData = JSON.parse(JSON.stringify(this.gLastProfile))
       const rawDataset = []
 
+      console.log('this.gLastProfile', this.gLastProfile)
+
       for (const e of newData) {
         const rawData = new DataAnalyzer(e.data)
+        console.log(rawData)
         rawData.preProcess()
         rawDataset.push({ id: e.id, data: rawData })
       }
@@ -213,29 +222,31 @@ export default {
   },
 
   methods: {
-    openWebSocket() {
-      if (!this.gIsLogged) return
+    // openWebSocket() {
+    //   if (!this.gIsLogged) return
 
-      const socket = this.$backend.openSocket()
-      if (!socket) return
+    //   const socket = this.$backend.openSocket()
+    //   if (!socket) return
 
-      socket.on('connect', () => {
-        console.log('connected')
-      })
+    //   socket.on('connect', () => {
+    //     console.log('connected')
+    //   })
 
-      socket.on('connect_error', () => {
-        // socket.connect()
-        console.log('connect error')
-      })
+    //   socket.on('connect_error', () => {
+    //     // socket.connect()
+    //     console.log('connect error')
+    //   })
 
-      socket.on('disconnect', () => {
-        console.log('diconnect')
-      })
+    //   socket.on('disconnect', () => {
+    //     console.log('diconnect')
+    //   })
 
-      socket.on('new_data', (data) => {
-        this.$store.commit('data/SET_LAST_PROFILE', { lastProfile: data })
-      })
-    },
+    //   socket.on('new_data', (data) => {
+    //     this.$store.commit('data/SET_LAST_PROFILE', {
+    //       lastProfile: data,
+    //     })
+    //   })
+    // },
 
     setPreset(preset) {
       if (this.showLabels.includes('tracked'))

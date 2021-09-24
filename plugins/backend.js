@@ -1,7 +1,8 @@
-import { io } from 'socket.io-client'
+const { Manager } = require('socket.io-client')
 
 const backend = {
-  baseUrl: 'http://127.0.0.1:8001/',
+  // baseUrl: 'http://127.0.0.1:8001/',
+  baseUrl: 'https://app-review-backend.herokuapp.com/',
   apiUrl: '/api/',
 }
 
@@ -9,6 +10,10 @@ if (process.env.NODE_ENV === 'production') {
   backend.baseUrl = 'https://app-review-backend.herokuapp.com/'
   backend.apiUrl = backend.baseUrl + 'api/'
 }
+
+backend.manager = new Manager(backend.baseUrl, {
+  reconnectionDelayMax: 10000,
+})
 
 /*******************************************************/
 /*  this is the generic method to make axios request   */
@@ -127,11 +132,17 @@ backend.openSocket = function () {
     return null
   }
 
-  const socket = io(this.baseUrl, {
-    auth: { token: this.auth.accessToken },
-  })
+  if (!this.socket)
+    this.socket = this.manager.socket('/', {
+      auth: { token: this.auth.accessToken },
+    })
+  else this.socket.connect()
 
-  return socket
+  return this.socket
+}
+
+backend.closeSocket = function () {
+  this.socket.disconnect()
 }
 
 // backend.postAuthAccess_Firebase = function (data) {

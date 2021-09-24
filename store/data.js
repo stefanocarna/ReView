@@ -9,20 +9,8 @@ export const getters = {
 }
 
 export const mutations = {
-  SET_LAST_PROFILE(state, { lastProfile, persist }) {
-    let cLastProfile
-    if (state.lastProfile) {
-      cLastProfile = JSON.parse(JSON.stringify(state.lastProfile))
-      // Update user fields
-      for (const prop in lastProfile) {
-        if (lastProfile[prop]) cLastProfile[prop] = lastProfile[prop]
-      }
-    } else {
-      cLastProfile = lastProfile
-    }
-
-    state.lastProfile = cLastProfile
-    // if (persist) storage.put('authUser', cUser)
+  SET_LAST_PROFILE(state, { lastProfile }) {
+    state.lastProfile = JSON.parse(lastProfile)
   },
 
   CLEAR_STATE(state) {

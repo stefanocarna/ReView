@@ -96,11 +96,11 @@ export const actions = {
    *  - persist: save data into localStorage
    *  - silent: login action is transparent
    */
-  async login({ commit }, { username, password }) {
+  async login({ commit }, { email, password }) {
     // console.log('[INIT] auth.js:login')
 
     return await this.$backend
-      .authLogin(username, password)
+      .authLogin(useemailrname, password)
       .then((r) => {
         // Save accessToken
         commit('SET_ACCESS_TOKEN', {

@@ -49,7 +49,7 @@ export default {
       try {
         this.$store.commit('app/SET_LOADING', true)
         return await this.$store
-          .dispatch('auth/login', { username: e, password: p })
+          .dispatch('auth/login', { email: e, password: p })
           .then(() => {
             /* Login with success */
             // TODO change into index

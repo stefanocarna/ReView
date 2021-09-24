@@ -85,16 +85,16 @@ backend.putAPI = function (api, data, auth = true, unpack = true) {
 // /*                   Authorization                     */
 // /* ----------------------------------------------------- */
 
-backend.authRegister = function (name, username, password) {
+backend.authRegister = function (name, email, password) {
   console.log('backend.js:authRegister')
   const END_API = 'auth/register'
-  return this.postAPI(END_API, null, { name, username, password }, false)
+  return this.postAPI(END_API, null, { name, email, password }, false)
 }
 
-backend.authLogin = function (username, password) {
+backend.authLogin = function (email, password) {
   console.log('backend.js:authLogin')
   const END_API = 'auth/login'
-  return this.postAPI(END_API, null, { username, password }, false)
+  return this.postAPI(END_API, null, { email, password }, false)
 }
 
 backend.authLogout = function () {

@@ -100,7 +100,7 @@ export const actions = {
     // console.log('[INIT] auth.js:login')
 
     return await this.$backend
-      .authLogin(useemailrname, password)
+      .authLogin(email, password)
       .then((r) => {
         // Save accessToken
         commit('SET_ACCESS_TOKEN', {

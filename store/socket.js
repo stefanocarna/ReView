@@ -36,11 +36,13 @@ export const actions = {
     commit('CLEAR_STATE')
   },
 
-  connect({ state, commit }) {
+  connect({ state, commit, dispatch }) {
     if (state.connected) {
       console.log('Cannot open concurrent WebSocket')
       return
     }
+
+    dispatch('profile/fetch', null, { root: true })
 
     const socket = this.$backend.openSocket()
     commit('SET_SOCKET', socket.id)
@@ -61,13 +63,7 @@ export const actions = {
     })
 
     socket.on('new_data', (data) => {
-      commit(
-        'data/SET_LAST_PROFILE',
-        {
-          lastProfile: data,
-        },
-        { root: true }
-      )
+      commit('profile/ADD_TO_PROFILES_AND_ACTIVE', data, { root: true })
     })
   },
 

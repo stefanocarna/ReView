@@ -21,7 +21,13 @@ export default {
       { hid: 'description', name: 'description', content: '' },
       { name: 'format-detection', content: 'telephone=no' },
     ],
-    link: [{ rel: 'icon', type: 'image/png', href: '/favicon.png' }],
+    link: [
+      { rel: 'icon', type: 'image/png', href: '/favicon.png' },
+      {
+        rel: 'stylesheet',
+        href: 'https://use.fontawesome.com/releases/v5.10.0/css/all.css',
+      },
+    ],
   },
 
   /*
@@ -33,6 +39,7 @@ export default {
   plugins: [
     '@plugins/axios.js',
     '@plugins/backend.js',
+    '@plugins/modal.js',
     '@plugins/dependencies.js',
   ],
 
@@ -69,7 +76,6 @@ export default {
     // https://go.nuxtjs.dev/eslint
     '@nuxtjs/eslint-module',
     '@nuxtjs/google-fonts',
-    '@nuxtjs/fontawesome',
   ],
 
   // Modules: https://go.nuxtjs.dev/config-modules
@@ -95,7 +101,15 @@ export default {
       },
     ],
     // https://go.nuxtjs.dev/buefy
-    'nuxt-buefy',
+    [
+      'nuxt-buefy',
+      {
+        css: false,
+        materialDesignIcons: false,
+        defaultIconPack: 'fa',
+        defaultUseHtml5Validation: false,
+      },
+    ],
     // https://go.nuxtjs.dev/axios
     '@nuxtjs/axios',
   ],

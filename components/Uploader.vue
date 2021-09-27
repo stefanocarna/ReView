@@ -1,17 +1,14 @@
 <template>
-  <div class="is-flex is-justify-content-center">
-    <b-field class="file is-primary" :class="{ 'has-name': !!file }">
-      <b-upload v-model="file" class="file-label">
-        <span class="file-cta">
-          <b-icon class="file-icon" icon="upload"></b-icon>
-          <span class="file-label">Click to upload</span>
-        </span>
-        <span v-if="file" class="file-name">
-          {{ file.name }}
-        </span>
-      </b-upload>
-    </b-field>
-  </div>
+  <!-- <div class="is-flex is-justify-content-center"> -->
+  <!-- <b-field class="file is-primary" :class="{ 'has-name': !!file }"> -->
+  <b-upload v-model="file">
+    <span class="button uploader">
+      <!-- <b-icon class="file-icon" icon="upload"></b-icon> -->
+      <span class="file-label">Upload</span>
+    </span>
+  </b-upload>
+  <!-- </b-field>
+  </div> -->
 </template>
 
 <script>
@@ -19,8 +16,12 @@ export default {
   props: {
     value: {
       default: () => [],
-      type: Array,
+      type: [Array, String],
       required: true,
+    },
+    stringify: {
+      type: Boolean,
+      default: false,
     },
   },
 
@@ -36,7 +37,8 @@ export default {
       if (n != null) {
         this.$store.commit('app/SET_LOADING', true)
         this.text = await this.readFile(this.file)
-        this.$emit('update:value', JSON.parse(this.text))
+        if (this.stringify) this.$emit('update:value', JSON.parse(this.text))
+        else this.$emit('update:value', this.text)
         this.$store.commit('app/SET_LOADING', false)
       }
     },
@@ -58,3 +60,11 @@ export default {
   },
 }
 </script>
+
+<style lang="scss">
+.uploader {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+</style>

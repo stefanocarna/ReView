@@ -1,24 +1,14 @@
-export const state = () => ({
-  lastProfile: [],
-})
+export const state = () => ({})
 
-export const getters = {
-  gLastProfile(state) {
-    return state.lastProfile ? state.lastProfile : []
-  },
-}
+export const getters = {}
 
 export const mutations = {
-  SET_LAST_PROFILE(state, { lastProfile }) {
-    state.lastProfile = JSON.parse(lastProfile)
-  },
-
   CLEAR_STATE(state) {
     // Clear localStorage
     // storage.clear()
 
     // Reset State
-    state.lastProfile = []
+    state.activeProfile = []
   },
 }
 

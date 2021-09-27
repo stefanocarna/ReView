@@ -1,8 +1,8 @@
 const { Manager } = require('socket.io-client')
 
 const backend = {
-  // baseUrl: 'http://127.0.0.1:8001/',
-  baseUrl: 'https://app-review-backend.herokuapp.com/',
+  baseUrl: 'http://127.0.0.1:8001/',
+  // baseUrl: 'https://app-review-backend.herokuapp.com/',
   apiUrl: '/api/',
 }
 
@@ -114,16 +114,22 @@ backend.getAuth = function () {
   return this.getAPI(END_API, null)
 }
 
-backend.getProfile = function () {
+backend.getProfile = function (profileId = null, nodata = false) {
   console.log('backend.js:getProfile')
-  const END_API = 'profile'
-  return this.getAPI(END_API)
+  const END_API = 'profile/' + (profileId ? '' + profileId : '')
+  return this.getAPI(END_API, { nodata })
 }
 
 backend.postProfile = function (data) {
   console.log('backend.js:postProfile')
   const END_API = 'profile'
   return this.postAPI(END_API, null, { data })
+}
+
+backend.deleteProfile = function (profileId) {
+  console.log('backend.js:deleteProfile')
+  const END_API = 'profile/' + profileId
+  return this.deleteAPI(END_API)
 }
 
 backend.openSocket = function () {

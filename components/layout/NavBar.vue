@@ -1,25 +1,25 @@
 <template>
   <b-navbar>
-    <template #brand>
-      <b-navbar-item tag="router-link" :to="{ path: '/' }">
-        <img src="@/assets/images/png/review-logo.png" />
-        <p class="logo-text is-size-4">ReView</p>
-      </b-navbar-item>
-    </template>
-
     <template #start>
-      <b-navbar-item v-show="gIsLogged" href="#"> Logged </b-navbar-item>
+      <b-navbar-item v-if="gIsLogged" tag="div" class="has-text-light">
+        <span> Logged as {{ gUser.displayName }} </span>
+      </b-navbar-item>
+
+      <b-navbar-item v-else tag="div">
+        <a class="button is-primary" :href="this.localePath({ name: 'login' })">
+          <strong>Login</strong>
+        </a>
+      </b-navbar-item>
     </template>
 
     <template #end>
       <div class="navbar-menu">
         <b-navbar-item tag="div">
           <div class="buttons">
-            <b-button icon-left="github">
-              <a href="https://github.com/stefanocarna/ReView">
-                <strong>Github Repo</strong>
-              </a>
-            </b-button>
+            <a class="button" href="https://github.com/stefanocarna/ReView">
+              <b-icon icon="github" pack="fab"></b-icon>
+              <strong>Github Repo</strong>
+            </a>
           </div>
         </b-navbar-item>
         <div class="navbar-end"></div>
@@ -33,15 +33,18 @@ import { mapGetters } from 'vuex'
 export default {
   computed: {
     ...mapGetters({
+      gUser: 'auth/gUser',
       gIsLogged: 'auth/gIsLogged',
     }),
   },
 }
 </script>
 <style lang="scss" scoped>
+$sidebar-base: #262f3d;
+
 .navbar {
   padding: 0 1.5rem;
-  background-color: #343837;
+  background-color: $sidebar-base;
 
   &-item {
     // color: $app-color2;

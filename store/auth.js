@@ -108,7 +108,7 @@ export const actions = {
           persist: true,
         })
 
-        commit('SET_USER', { user: r.user }, true)
+        commit('SET_USER', { user: r.user, persist: true })
 
         return true
       })
@@ -125,7 +125,7 @@ export const actions = {
     dispatch('clear_app_state')
   },
 
-  async fetchFullUser({ commit, state }) {
+  async fetchUser({ commit, state }) {
     try {
       commit('SET_USER', {
         user: await this.$backend.getAuth(),
@@ -137,76 +137,14 @@ export const actions = {
     }
   },
 
-  //   fetchFullUser({ dispatch }) {
-  //     try {
-  //       return Promise.all([
-  //         dispatch('fetchUser'),
-  //         dispatch('payments/fetch', null, { root: true }),
-  //         dispatch('freebles/fetch', null, { root: true }),
-  //       ])
-  //     } catch {
-  //       throw new Error('Cannot fecth full user data')
-  //     }
-  //   },
-
-  //   async fetchTerms(context) {
-  //     try {
-  //       const firebaseToken = await this.$firebase.auth().currentUser.getIdToken()
-  //       return await this.$backend.getAuthTerms({
-  //         loginRole: 'USER_COVID',
-  //         // TODO enable when using i18n plugin
-  //         // locale: this.$i18n.locale,
-  //         locale: 'it',
-  //         firebaseToken,
-  //       })
-  //     } catch {
-  //       throw new Error('Cannot fetch terms. Please perform a login.')
-  //     }
-  //   },
-
-  //   async fetchUser({ commit, state }) {
-  //     try {
-  //       commit('SET_USER', {
-  //         user: await this.$backend.getUserAccount(),
-  //         persist: !!storage.get('authUser'),
-  //       })
-  //       return state.user
-  //     } catch {
-  //       throw new Error('Cannot fetch user information')
-  //     }
-  //   },
-
-  //   async refreshToken(context) {
-  //     // console.log('[INIT] auth.js:refreshToken')
-
-  //     const refreshToken = context.state.refreshToken
-
-  //     // Something wrong, refresh token must be present
-  //     if (!refreshToken) return null
-
-  //     /* Refresh Freeble token */
-  //     await this.$backend
-  //       .postAuthToken({ refreshToken })
-  //       .then((r) => {
-  //         console.log('postAuthToken.r:', r)
-  //         context.commit('SET_ACCESS_TOKEN', {
-  //           token: r.access_token,
-  //           persist: !!storage.get('authAccessToken'),
-  //         })
-  //         context.commit('SET_REFRESH_TOKEN', {
-  //           token: r.refresh_token,
-  //           persist: !!storage.get('authRefreshToken'),
-  //         })
-  //       })
-  //       .catch(async () => {
-  //         /* Silent login */
-  //         try {
-  //           await waitForRefresh(context)
-  //         } catch (err) {
-  //           console.err(err, err.message)
-  //         }
-  //       })
-
-  //     return context.state.accessToken
-  //   },
+  fetchFullUser({ dispatch }) {
+    try {
+      return Promise.all([
+        dispatch('fetchUser'),
+        dispatch('profile/fetch', null, { root: true }),
+      ])
+    } catch {
+      throw new Error('Cannot fetch user information')
+    }
+  },
 }

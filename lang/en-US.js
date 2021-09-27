@@ -6,6 +6,15 @@ export default {
     minLength: 'Il campo e troppo corto',
     maxLength: 'Il campo e troppo lungo',
     alphaNum: "Il campo puo' contenere solo lettere e numeri",
-    hasStreetNumber: 'Numero civico mancante'
-  }
+    hasStreetNumber: 'Numero civico mancante',
+  },
+
+  comp: {
+    actionmodal: {
+      default: {
+        yes: 'SI',
+        no: 'NO',
+      },
+    },
+  },
 }

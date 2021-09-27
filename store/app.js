@@ -23,8 +23,10 @@ export const actions = {
     if (state.appInit) throw new Error('initialize called twice')
 
     /* Load User Information */
-    if (rootState.auth.accessToken)
+    if (rootState.auth.accessToken) {
+      console.log('fetchFullUser')
       await dispatch('auth/fetchFullUser', null, { root: true })
+    }
 
     commit('SET_APP_INIT')
   },

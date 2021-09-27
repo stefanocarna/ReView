@@ -144,7 +144,7 @@
 <script>
 import { required, email, minLength } from 'vuelidate/lib/validators'
 import LoginMixin from '@/mixins/Login.mixin.vue'
-import VInput from '@/components/VInput.vue'
+import VInput from '~/components/app/VInput.vue'
 // import UserPasswordReset from '@/components/modable/UserPasswordReset.vue'
 
 export default {

@@ -1,8 +1,24 @@
 <template>
   <div class="columns is-multiline p-3 m-0">
     <div class="column is-6">
-      <p class="is-size-4 has-text-centered m-2">Select a data file</p>
-      <uploader :value.sync="dataJson" />
+      <b-field label="Display command">
+        <b-button
+          v-if="!gIsConnected"
+          @click="$store.dispatch('socket/connect')"
+        >
+          ENABLE Realtime</b-button
+        >
+        <b-button v-else @click="$store.dispatch('socket/disconnect')">
+          STOP Realtime</b-button
+        >
+        <uploader :value.sync="dataJson" />
+      </b-field>
+
+      <b-field label="Profile command">
+        <b-button v-if="gActiveProfile.id" @click="deleteProfile">
+          Delete Profile
+        </b-button>
+      </b-field>
     </div>
     <div
       class="
@@ -12,14 +28,13 @@
         is-flex is-flex-direction-column is-align-content-center
       "
     >
-      <p class="is-size-4 has-text-centered m-2">Set charts per row</p>
       <div
         class="
           block
           is-flex is-align-content-center is-justify-content-space-evenly
         "
       >
-        <b-field>
+        <b-field label="Set charts per row">
           <b-radio-button
             v-for="v in perRowChartValues"
             :key="v"
@@ -32,7 +47,7 @@
       </div>
     </div>
     <div class="column is-12 has-text-centered">
-      <p class="is-size-4 has-text-centered">Filters & Presets</p>
+      <p class="is-size-5 has-text-centered">Filters & Presets</p>
       <div
         class="
           block
@@ -58,6 +73,26 @@
         </div>
       </div>
     </div>
+    <div class="column is-12 has-text-centered">
+      <p>
+        Profile machine:
+        <span class="has-text-weight-bold">
+          {{ gActiveProfile.machine }}
+        </span>
+      </p>
+      <p>
+        Profile description:
+        <span class="has-text-weight-bold">
+          {{ gActiveProfile.description }}</span
+        >
+      </p>
+      <p v-if="gActiveProfile.date">
+        Profile date:
+        <span class="has-text-weight-bold">
+          {{ new Date(gActiveProfile.date).toLocaleString('it-IT') }}</span
+        >
+      </p>
+    </div>
     <div class="column is-12">
       <multi-chart
         :datasets="cDataset"
@@ -70,8 +105,8 @@
 
 <script>
 import MultiChart from '@/components/MultiChart.vue'
-import Uploader from '@/components/Uploader.vue'
 import { Metric, DataAnalyzer } from '@/js/tma.js'
+import { mapGetters } from 'vuex'
 
 const METADATA = {
   tracked: {
@@ -125,14 +160,12 @@ const METADATA = {
 export default {
   components: {
     MultiChart,
-    Uploader,
   },
 
   data() {
     return {
       showLabels: ['tracked', 'BB', 'BS', 'RE', 'FB'],
       dataJson: [],
-      rawDatasets: [],
       // zoom: 1,
       metric: Metric.MTSS,
       skipLabels: ['pipeline_w', 'slots', 'time'],
@@ -158,9 +191,31 @@ export default {
   },
 
   computed: {
+    ...mapGetters({
+      gIsLogged: 'auth/gIsLogged',
+      gActiveProfile: 'profile/gActiveProfile',
+      gAccessToken: 'auth/gAccessToken',
+      gIsConnected: 'socket/gIsConnected',
+    }),
+
+    cRawDataset() {
+      const rawDataset = []
+
+      if (this.gActiveProfile.data) {
+        const newData = JSON.parse(JSON.stringify(this.gActiveProfile.data))
+        for (const e of newData) {
+          const rawData = new DataAnalyzer(e.data)
+          rawData.preProcess()
+          rawDataset.push({ id: e.id, data: rawData })
+        }
+      }
+
+      return rawDataset
+    },
+
     cDataset() {
       const cDataset = []
-      for (const e of this.rawDatasets) {
+      for (const e of this.cRawDataset) {
         cDataset.push({
           id: e.id,
           data: this.processDataset(e.data),
@@ -176,7 +231,7 @@ export default {
       let min = Number.MAX_SAFE_INTEGER
       let max = Number.MIN_SAFE_INTEGER
 
-      for (const e of this.rawDatasets) {
+      for (const e of this.cRawDataset) {
         const data = e.data.getComputedData()
         if (min > data[0].time) min = data[0].time
         if (max < data[data.length - 1].time) max = data[data.length - 1].time
@@ -184,7 +239,6 @@ export default {
 
       return [min, max]
     },
-
     cLabels() {
       return Object.keys(METADATA)
       // return METADATA.map((m) => m.label)
@@ -193,13 +247,10 @@ export default {
 
   watch: {
     dataJson(n, o) {
-      this.rawDatasets.splice(0, this.rawDatasets.length)
-
-      for (const e of this.dataJson) {
-        const rawData = new DataAnalyzer(e.data)
-        rawData.preProcess()
-        this.rawDatasets.push({ id: e.id, data: rawData })
-      }
+      this.$store.commit('profile/SET_ACTIVE_PROFILE', {
+        data: n,
+        date: Date.now(),
+      })
     },
   },
 
@@ -247,6 +298,25 @@ export default {
       datasets.tracked.pointRadius = 0
 
       return { data }
+    },
+
+    deleteProfile() {
+      this.$promodal
+        .ask('Delete profileId ' + this.gActiveProfile.id, this)
+        .then((res) => {
+          this.$store
+            .dispatch('profile/delete', this.gActiveProfile.id)
+            .then(() => {
+              this.$snotify.success('Profile deleted', {
+                timeout: 3000,
+                showProgressBar: false,
+                position: 'rightCenter',
+              })
+            })
+        })
+        .catch((err) => {
+          console.log('Rejected', err)
+        })
     },
   },
 }

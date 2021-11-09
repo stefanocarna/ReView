@@ -96,8 +96,9 @@
     <div class="column is-12">
       <multi-chart
         :datasets="cDataset"
+        :extra="cExtra"
         :range="cRange"
-        :perRow="perRowCharts"
+        :per-row="perRowCharts"
       />
     </div>
   </div>
@@ -164,11 +165,11 @@ export default {
 
   data() {
     return {
-      showLabels: ['tracked', 'BB', 'BS', 'RE', 'FB'],
+      showLabels: ['BB', 'BS', 'RE', 'FB'],
       dataJson: [],
       // zoom: 1,
       metric: Metric.MTSS,
-      skipLabels: ['pipeline_w', 'slots', 'time'],
+      skipLabels: ['pipeline_w', 'slots', 'time', 'tracked'],
       dDataset: [],
 
       dPresets: [
@@ -219,12 +220,26 @@ export default {
         cDataset.push({
           id: e.id,
           data: this.processDataset(e.data),
+          highlights: this.processHighlights(e.data),
         })
       }
 
       /* TODO remove */
       // return cDataset.length > 0 ? [cDataset[0]] : []
       return cDataset
+    },
+
+    cExtra() {
+      const cExtra = []
+
+      for (const e of this.cRawDataset) {
+        cExtra.push({
+          id: e.data.getDataByRawMetric('PID'),
+          name: e.data.getDataByRawMetric('NAME'),
+        })
+      }
+
+      return cExtra
     },
 
     cRange() {
@@ -296,6 +311,25 @@ export default {
       /* Try to implement highlight as dataset */
       datasets.tracked.fill = true
       datasets.tracked.pointRadius = 0
+
+      return { data }
+    },
+
+    processHighlights(d) {
+      const data = []
+      const compData = d.getComputedData()
+
+      /* Try to collapse subsequent rects */
+      for (let i = 0; i < compData.length - 1; ++i) {
+        if (compData[i].tracked === 0) continue
+        let offSet = i + 1
+
+        while (compData[offSet].tracked && offSet < compData.length - 1)
+          offSet++
+
+        data.push({ from: compData[i].time, to: compData[offSet].time })
+        i = offSet
+      }
 
       return { data }
     },

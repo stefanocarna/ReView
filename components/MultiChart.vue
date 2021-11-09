@@ -1,20 +1,24 @@
 <template>
   <div class="multichart__container columns is-multiline">
-    <div v-for="d in datasets" :key="d.id" class="column" :class="cClass">
-      <chart :name="d.id" :data="d" :range="range" />
+    <div v-for="(d, i) in datasets" :key="d.id" class="column" :class="cClass">
+      <h-chart :name="d.id" :data="d" :extra-data="extra[i]" :range="range" />
     </div>
   </div>
 </template>
 <script>
-import Chart from '~/components/Chart.vue'
+import HChart from '~/components/HChart.vue'
 
 export default {
   components: {
-    Chart,
+    HChart,
   },
 
   props: {
     datasets: {
+      type: Array,
+      default: () => [],
+    },
+    extra: {
       type: Array,
       default: () => [],
     },

@@ -1,7 +1,13 @@
 <template>
   <div class="multichart__container columns is-multiline">
     <div v-for="(d, i) in datasets" :key="d.id" class="column" :class="cClass">
-      <h-chart :name="d.id" :data="d" :extra-data="extra[i]" :range="range" />
+      <h-chart
+        :name="d.id"
+        :data="d"
+        :extra-data="extra[i]"
+        :range="range"
+        :navigator="i === datasets.length - 1"
+      />
     </div>
   </div>
 </template>

@@ -1,5 +1,14 @@
 <template>
   <div class="chart__container">
+    <div class="is-flex is-justify-content-flex-end">
+      <div class="aggregator" v-for="agg in dAggregate" :key="agg.name">
+        <div
+          class="aggregator__indicator"
+          :style="{ backgroundColor: agg.color }"
+        />
+        <span class="is-size-6"> {{ Math.round(agg.value) }} % </span>
+      </div>
+    </div>
     <div ref="chart_parent" class="chart__wrapper">
       <div ref="chart" />
     </div>
@@ -7,7 +16,7 @@
 </template>
 
 <script>
-import Highcharts from 'highcharts'
+import Highcharts from 'highcharts/highstock'
 
 /**
  * Override the reset function, we don't need to hide the tooltips and
@@ -33,7 +42,7 @@ function syncExtremes(e) {
   if (e.trigger !== 'syncExtremes') {
     // Prevent feedback loop
     Highcharts.each(Highcharts.charts, function (chart) {
-      if (chart !== thisChart) {
+      if (chart && chart !== thisChart) {
         if (chart.xAxis[0].setExtremes) {
           // It is null while updating
           chart.xAxis[0].setExtremes(e.min, e.max, undefined, false, {
@@ -66,11 +75,16 @@ export default {
       type: Array,
       default: () => [0, 1],
     },
+    navigator: {
+      type: Boolean,
+      default: false,
+    },
   },
 
   data() {
     return {
       chart: null,
+      dAggregate: [],
     }
   },
 
@@ -103,13 +117,16 @@ export default {
         this.$refs.chart_parent.addEventListener(eventType, function (e) {
           for (let i = 0; i < Highcharts.charts.length; i = i + 1) {
             const chart = Highcharts.charts[i]
-            // Find coordinates within the chart
-            const event = chart.pointer.normalize(e)
-            // Get the hovered point
-            const point = chart.series[0].searchPoint(event, true)
 
-            if (point) {
-              point.highlight(e)
+            if (chart) {
+              // Find coordinates within the chart
+              const event = chart.pointer.normalize(e)
+              // Get the hovered point
+              const point = chart.series[0].searchPoint(event, true)
+
+              if (point) {
+                point.highlight(e)
+              }
             }
           }
         })
@@ -134,32 +151,47 @@ export default {
       return series
     },
 
-    updateChart() {
-      console.log('Update')
-      const series = this.generateSeriesData()
+    syncAggregated() {
+      this.dAggregate.splice(0)
 
-      this.chart.xAxis[0].setExtremes(this.range[0], this.range[1])
+      for (const s of this.chart.series) {
+        if (this.navigator && s.name.includes('Navigator')) continue
+        if (!s.points.length) {
+          this.dAggregate.push({ name: s.name, color: 'grey', value: 0 })
+          continue
+        }
 
-      for (let i = 0; i < series.length; ++i) {
-        this.chart.series[i].update(series[i])
+        const color = s.points[0].color
+
+        let cAgg = 0
+        let cElem = 0
+        let init = false
+
+        for (const p of s.points) {
+          if (p.isInside) {
+            init = true
+            cAgg += p.y
+            cElem++
+          } else if (init) {
+            break
+          }
+        }
+
+        this.dAggregate.push({
+          name: s.name,
+          color,
+          value: cElem > 0 ? cAgg / cElem : 0,
+        })
       }
+    },
+
+    updateChart() {
+      this.chart.destroy()
+      this.createChart()
     },
 
     createChart() {
       const series = this.generateSeriesData()
-
-      for (const e of this.cData.data) {
-        const data = []
-
-        for (const d of e.data) data.push([d.x, d.y])
-
-        series.push({
-          name: e.label,
-          data,
-          pointStart: data.pointStart,
-          pointInterval: data.pointInterval,
-        })
-      }
 
       const hchart = this
 
@@ -173,10 +205,10 @@ export default {
         })
       }
 
-      this.chart = Highcharts.chart(this.$refs.chart, {
+      this.chart = Highcharts.stockChart(this.$refs.chart, {
         chart: {
           zoomType: 'x',
-          height: '160px',
+          height: '300px',
           borderColor: 'gray',
           borderWidth: 1,
           panning: {
@@ -184,7 +216,20 @@ export default {
             type: 'x',
           },
           panKey: 'shift',
+
+          events: {
+            redraw: this.syncAggregated,
+          },
         },
+
+        navigator: {
+          enabled: this.navigator,
+        },
+
+        scrollbar: {
+          enabled: this.navigator,
+        },
+
         title: {
           text: this.name,
           align: 'left',
@@ -248,7 +293,50 @@ export default {
           },
         },
         series,
+
+        plotOptions: {
+          series: {
+            pointStart: Date.UTC(2021, 0, 1),
+          },
+        },
+
+        rangeSelector: {
+          inputEnabled: false,
+          buttons: [
+            {
+              type: 'day',
+              count: 3,
+              text: '3d',
+            },
+            {
+              type: 'week',
+              count: 1,
+              text: '1w',
+            },
+            {
+              type: 'month',
+              count: 1,
+              text: '1m',
+            },
+            {
+              type: 'month',
+              count: 6,
+              text: '6m',
+            },
+            {
+              type: 'year',
+              count: 1,
+              text: '1y',
+            },
+            {
+              type: 'all',
+              text: 'All',
+            },
+          ],
+          selected: 3,
+        },
       })
+      this.syncAggregated()
     },
   },
 }
@@ -268,6 +356,20 @@ export default {
     width: 100%;
     float: left;
     position: relative;
+  }
+}
+
+.aggregator {
+  border-radius: 0.25em;
+  display: flex;
+  align-items: center;
+  width: 5em;
+  margin: 0.25em;
+
+  &__indicator {
+    width: 1.5em;
+    height: 1.5em;
+    margin-right: 0.25em;
   }
 }
 </style>

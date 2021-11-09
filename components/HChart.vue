@@ -179,6 +179,11 @@ export default {
           height: '160px',
           borderColor: 'gray',
           borderWidth: 1,
+          panning: {
+            enabled: true,
+            type: 'x',
+          },
+          panKey: 'shift',
         },
         title: {
           text: this.name,

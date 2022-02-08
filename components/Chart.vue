@@ -100,7 +100,7 @@ export default {
                 stepSize: 100,
               },
               min: 0,
-              max: 1000,
+              max: 100,
             },
             x: {
               suggestedMin: this.range[0],

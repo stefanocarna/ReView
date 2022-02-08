@@ -286,8 +286,8 @@ export default {
         },
         yAxis: {
           min: 0,
-          max: 1000,
-          tickInterval: 200,
+          max: 100,
+          tickInterval: 20,
           title: {
             text: '%',
           },

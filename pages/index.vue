@@ -293,7 +293,7 @@ export default {
         /* This should be performed by the the textual parser */
         for (const [k, v] of Object.entries(e)) {
           if (k === 'tracked' && v > 0)
-            datasets[k].data.push({ y: 1000, x: e.time })
+            datasets[k].data.push({ y: 100, x: e.time })
           else if (v === -1) datasets[k].data.push({ y: null, x: e.time })
           else datasets[k].data.push({ y: v > 0 ? v : 0, x: e.time })
         }

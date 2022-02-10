@@ -6,7 +6,9 @@
           class="aggregator__indicator"
           :style="{ backgroundColor: agg.color }"
         />
-        <span class="is-size-6"> {{ Math.round(agg.value) }} % </span>
+        <span class="is-size-6">
+          {{ Math.round((agg.value + Number.EPSILON) * 100) / 100 }} %
+        </span>
       </div>
     </div>
     <div ref="chart_parent" class="chart__wrapper">
@@ -283,6 +285,13 @@ export default {
           },
           text: 'TSC',
           plotBands,
+
+          type: 'datetime',
+          labels: {
+            format: '{value}',
+            align: 'right',
+            rotation: -30,
+          },
         },
         yAxis: {
           min: 0,
@@ -296,7 +305,7 @@ export default {
 
         plotOptions: {
           series: {
-            pointStart: Date.UTC(2021, 0, 1),
+            // pointStart: Date.UTC(2021, 0, 1),
           },
         },
 
@@ -363,12 +372,12 @@ export default {
   border-radius: 0.25em;
   display: flex;
   align-items: center;
-  width: 5em;
+  width: 5.75em;
   margin: 0.25em;
 
   &__indicator {
-    width: 1.5em;
-    height: 1.5em;
+    width: 1em;
+    height: 1em;
     margin-right: 0.25em;
   }
 }
